@@ -17,6 +17,20 @@ float dLine(vec2 x, vec2 p1, vec2 p2)
     return length(x-mix(p1, p2, clamp(dot(x-p1, d)/dot(d,d),0.,1.)));
 }
 
+float dGlyph(vec2 uv, float ordinal, float height)
+{
+    // Bounding box
+    float d = dBox(uv, .5*height*c.xx);
+    if(d > 0.) return d+.1*height;
+
+    // Actual glyph distance
+    const float nx = 16.;
+    vec2 texcoord = vec2(mod(ordinal, nx), nx-1.-floor(ordinal/nx))/nx,
+        wx = abs(uv/height/nx);
+    if(max(wx.x,wx.y)>.5/nx) return 0.;
+    return height/nx*(1.-texture(iChannel1, (texcoord + .5/nx + uv/height/nx)).r);
+}
+
 float sm(float d) {
     return smoothstep(1.5/iResolution.y, -1.5/iResolution.y, d);
 }
@@ -38,34 +52,36 @@ vec3 renderOnto(vec3 col, UiInformation elements) {
 }
 
 UiInformation add(UiInformation a, UiInformation b) {
-    if(b.dist<1.5/iResolution.y) {
-        a.color = renderOnto(a.color, b);
+    if(abs(b.dist)<1.5/iResolution.y) {
+        a.color = mix(a.color, b.color, sm(b.dist));
     }
 
-    if(b.dist<0.) {
-        a.dist = b.dist;
-        a.material = b.material;
-    }
-    
-    return a;
+    return b.dist<-1.5/iResolution.y?b:a;
 }
 
 UiInformation ui(float dist, float material) {
     return UiInformation(dist, material, materialColor(material));
 }
 
+// UiInformation text(int index) {
+    // return ui()
+// }
+
 UiInformation window(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R;
-    // return add(ui(abs(d)-.002, 2.),ui(d, 1.));
     return add(
         add(
             // Window background
             ui(d, 1.),
             // Window title bar
-            ui(abs(dLine(x,(outerSize-R)*c.zx, (outerSize-R)))-R,3.)
+            ui(abs(dLine(x,(outerSize-R)*c.zx, (outerSize-R)))-R, 2.)
         ),
-        // Border
-        ui(abs(d)-.002, 2.)
+        add(
+            // Border
+            ui(abs(d)-.002, 2.),
+            // Title text
+            ui(abs(dGlyph(x, 7., .2))-.01, 3.)
+        )
     );
 }
 
