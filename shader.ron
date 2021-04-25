@@ -34,7 +34,14 @@
 						vflip: true,
 					)),
 				),
-				None,
+				(
+					asset: Texture(Font1),
+					sampler: Custom((
+						filter: mipmap,
+						wrap: repeat,
+						vflip: true,
+					)),
+				),
 				None,
 				None,
 			],
