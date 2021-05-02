@@ -98,4 +98,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     );
 
     fragColor = vec4(clamp(ui.color,0.,1.),1.0);
+    fragColor = texture(iChannel2, fragCoord/iResolution.xy);
 }

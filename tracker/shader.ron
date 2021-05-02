@@ -1,7 +1,7 @@
 #![enable(implicit_some)]
 (
 	meta: (
-		id: "",
+		id: "tracker",
 		name: "BoiTracker",
 		description: "This is a tracker-like visualization of MIDI input provided to ShaderBoi. It is available under GPLv3; see LICENSE for details.",
 		tags: [
@@ -42,7 +42,14 @@
 						vflip: true,
 					)),
 				),
-				None,
+				(
+					asset: Texture(Font1),
+					sampler: Custom((
+						filter: mipmap,
+						wrap: repeat,
+						vflip: true,
+					)),
+				),
 				None,
 			],
 		),

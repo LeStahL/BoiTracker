@@ -1,0 +1,23 @@
+#![enable(implicit_some, unwrap_newtypes)]
+(
+	res: "hd",
+	fps: 30,
+	inputs: [
+        ( id: "dictionary", src: Img(r"dictionary\dictionary.png") ),
+    ],
+	shaders: {
+		"tracker": "tracker",
+	},
+	chains: [
+		(
+			id: "main",
+			inputs: [
+				( id: "dictionary" ),
+			],
+			layers: [
+				( fx: "tracker" ),
+			],
+		),
+	],
+	output: ( id: "main" ),
+)
