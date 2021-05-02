@@ -1,3 +1,5 @@
+//! INPUT 2:0
+
 const vec3 c = vec3(1.,0.,-1.);
 
 struct UiInformation {

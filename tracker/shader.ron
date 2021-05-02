@@ -45,7 +45,7 @@
 				(
 					asset: Texture(Font1),
 					sampler: Custom((
-						filter: mipmap,
+						filter: nearest,
 						wrap: repeat,
 						vflip: true,
 					)),
