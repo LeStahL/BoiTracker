@@ -8,6 +8,7 @@
 	shaders: {
 		"tracker": "tracker",
 	},
+	midi_input: r"midi/20-10-19_02.23_fixed.mid",
 	chains: [
 		(
 			id: "main",

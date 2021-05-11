@@ -19,9 +19,14 @@
 						vflip: true,
 					)),
 				),
-				None,
-				None,
-				None,
+				(
+					asset: Music(XTrackTure),
+					sampler: Custom((
+						filter: linear,
+						wrap: clamp,
+						vflip: true,
+					)),
+				),
 			],
 		),
 		Image: (
@@ -50,7 +55,6 @@
 						vflip: true,
 					)),
 				),
-				None,
 			],
 		),
 	},
