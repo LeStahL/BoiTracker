@@ -4,7 +4,7 @@
 // pixel content: pitch of first note in the time frame.
 
 // Constants
-const float timeDelta = .5;
+const float timeDelta = 60./150./32.;
 const vec3 c = vec3(1.,0.,-1.);
 
 // Check if current time interval is already present in the texture.
