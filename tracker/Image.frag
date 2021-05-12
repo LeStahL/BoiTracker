@@ -68,6 +68,41 @@ UiInformation ui(float dist, float material) {
     return UiInformation(dist, material, materialColor(material));
 }
 
+// Lowest note shown is pitch 21, which is A0
+// Convert midi pitch to note information
+// Input: midi pitch
+// Output: vec4 with character codes describing the note
+vec4 pitchToNoteText(float pitch) {
+    float note = mod(pitch-21., 12.),
+        octave = 48.+(pitch-note)/12.;
+
+    if(octave < 48.) return vec4(45.); // ----
+    if(note == 0.) return vec4(65., octave, 45., 45.); // A0--
+    else if(note == 1.) return vec4(65., 35., octave, 45.); // A#0-
+    else if(note == 2.) return vec4(66., octave, 45., 45.); // B0--
+    else if(note == 3.) return vec4(67., octave+1., 45., 45.); // C1--
+    else if(note == 4.) return vec4(67., 35., octave+1., 45.); // C#1-
+    else if(note == 5.) return vec4(68., octave+1, 45., 45.); // D1--
+    else if(note == 6.) return vec4(68., 35., octave+1., 45.); // D#1-
+    else if(note == 7.) return vec4(69., octave+1., 45., 45.); // E1--
+    else if(note == 8.) return vec4(70., octave+1., 45., 45.); // F1--
+    else if(note == 9.) return vec4(70., 35., octave+1., 45.); // F#1-
+    else if(note == 10.) return vec4(71., octave+1., 45., 45.); // G1--
+    else if(note == 1.) return vec4(71., 35., octave+1., 45.);// G#1-
+}
+
+// Ui cell for one pitch block
+UiInformation cell(vec2 x, vec2 size, float pitch) {
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+    vec4 noteText = pitchToNoteText(pitch);
+
+    if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
+        return ui(abs(dGlyph(dx, noteText[int(xj.x)], 1.5*size.y))-.005, 3.);
+    }
+    return ui(1., 0.);
+}
+
 // Retrieve text from dictionary. Will not check if the index is actually contained in the
 // dictionary.
 UiInformation text(int index) {
@@ -87,7 +122,8 @@ UiInformation window(vec2 x, vec2 outerSize, float R) {
             // Border
             ui(abs(d)-.002, 2.),
             // Title text
-            ui(abs(dGlyph(x, 7., .2))-.01, 3.)
+            // ui(abs(dGlyph(x, 7., .2))-.01, 3.)
+            cell(x, .5*vec2(.2, .15), 70.)
         )
     );
 }
@@ -105,5 +141,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     );
 
     fragColor = vec4(clamp(ui.color,0.,1.),1.0);
-    fragColor = texture(iChannel0, fragCoord.xy/iResolution.xy);
+    // fragColor = texture(iChannel0, fragCoord.xy/iResolution.xy);
 }
