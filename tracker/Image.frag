@@ -97,7 +97,7 @@ UiInformation cell(vec2 x, vec2 size, float pitch) {
         xj = ceil((x-dx)/size);
 
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.5*size.y))-.003, 3.);
+        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.5*size.y))-.0005, 3.);
     }
     return ui(1., 0.);
 }
@@ -106,9 +106,8 @@ UiInformation cell(vec2 x, vec2 size, float pitch) {
 UiInformation tracker(vec2 x, vec2 cellSize) {
     vec2 dx = mod(x, cellSize) - .5*cellSize,
         xj = ceil((x-dx)/cellSize);
-
     if(xj.x > 0. && xj.y <= 16. && xj.y >= 0.) {
-        return cell(dx, cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
+        return cell(dx, .5*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
     }
 }
 
@@ -121,7 +120,7 @@ UiInformation text(int index) {
 UiInformation window(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R;
 
-    return tracker(x+vec2(iResolution.x/iResolution.y,.25), .2*vec2(.8, .2));
+    return tracker(x+vec2(iResolution.x/iResolution.y,.25), .2*vec2(1., .2));
 
     return add(
         add(
