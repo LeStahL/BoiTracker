@@ -1,6 +1,6 @@
 #![enable(implicit_some, unwrap_newtypes)]
 (
-	res: "hd",
+	res: "720p",
 	fps: 30,
 	inputs: [
         ( id: "dictionary", src: Img(r"dictionary/dictionary.png") ),

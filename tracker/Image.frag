@@ -3,6 +3,33 @@
 // Constants
 const vec2 midiResolution = vec2(128.,80.);
 const vec3 c = vec3(1.,0.,-1.);
+const float pi = 3.14159;
+
+// Created by David Hoskins.
+// See https://www.shadertoy.com/view/4djSRW
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+vec3 rgb2hsv(vec3 c)
+{
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(in vec3 c)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
 
 struct UiInformation {
     float dist;
@@ -55,9 +82,6 @@ vec3 materialColor(float material) {
     } else if(material == 6.) {
         return vec3(0.00,0.00,0.00);
     }
-    // else if(material == 7.) {
-    //     return 
-    // }
 }
 
 vec3 renderOnto(vec3 col, UiInformation elements) {
@@ -100,15 +124,23 @@ vec4 pitchToNoteText(float pitch) {
     return vec4(45.);
 }
 
+// Check if a note is playing at index
+bool hasNote(float channel, int index) {
+    return texelFetch(iChannel0, ivec2(1+int(channel), index), 0).x != 0.;
+}
+
 // Ui cell for one pitch block
-UiInformation cell(vec2 x, vec2 size, float pitch) {
+UiInformation cell(vec2 x, vec2 size, float pitch, bool current) {
     vec2 dx = mod(x, size)-.5*size,
         xj = ceil((x-dx)/size)+3.*c.xy;
 
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, 3.);
+        return add(
+            ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, current?5.:3.),
+            ui(dBox(x, size), current?4.:6.)
+        );
     }
-    return ui(1., 0.);
+    return ui(1., current?4.:6.);
 }
 
 // Ui matrix for tracker information
@@ -116,9 +148,25 @@ UiInformation tracker(vec2 x, vec2 cellSize) {
     vec2 dx = mod(x, cellSize) - .5*cellSize,
         xj = ceil((x-dx)/cellSize);
     if(xj.x > 0. && xj.x <= 16. && xj.y >= 0.) {
-        return cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
+        UiInformation cellUi = cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x, xj.y == 0.);
+        if(xj.y != 0.) {
+            cellUi.color = rgb2hsv(cellUi.color);
+            cellUi.color.r = .02*pi*(-1.+2.*hash12(
+                xj.x+.2*c.xx
+            ));
+
+            if(hasNote(xj.x-1., int(xj.y))) {
+                cellUi.color.b = 2.*cellUi.color.b;
+            }
+
+            cellUi.color = hsv2rgb(cellUi.color);
+        } else {
+            cellUi.color *= 2.;
+        }
+
+        return cellUi;
     }
-    return ui(1.,0.);
+    return ui(1.,xj.y == 0.?4.:6.);
 }
 
 // Retrieve text from dictionary. Will not check if the index is actually contained in the
@@ -132,26 +180,10 @@ UiInformation window(vec2 x, vec2 outerSize, float R) {
         a = iResolution.x/iResolution.y;
 
     return tracker(x+vec2(.49*a,.45), vec2(.98*a/16., 1./32.));
- 
-    //     add(
-    //         // Window background
-    //         ui(d, 1.),
-    //         // Window title bar
-    //         ui(abs(dLine(x,(outerSize-R)*c.zx, (outerSize-R)))-R, 2.)
-    //     ),
-    //     add(
-    //         // Border
-    //         ui(abs(d)-.002, 2.),
-    //         // Title text
-    //         // ui(abs(dGlyph(x, 7., .2))-.01, 3.)
-    //         // cell(x, .2*vec2(.2, .15), texelFetch(iChannel0, ivec2(1.+0.), 0).x)
-    //         tracker(x+vec2(.49*a,.25), vec2(.98*a/16., 1./32.))
-    //     )
-    // );
 }
 
 UiInformation background(vec2 x) {
-    return ui(0.,0.);
+    return ui(-1.,0.);
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
@@ -162,6 +194,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         window(uv, vec2(.4,.3), .02)
     );
 
-    fragColor = vec4(clamp(ui.color,0.,1.),1.0);
-    // fragColor = texture(iChannel0, fragCoord.xy/iResolution.xy);
+    vec3 col = clamp(ui.color,0.,1.);
+
+    // Gamma
+    col = col + col*col + col*col*col;
+
+    fragColor = vec4(clamp(col,0.,1.),1.0);
 }
