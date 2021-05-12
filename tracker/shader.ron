@@ -14,7 +14,7 @@
 				(
 					asset: Misc(BufferA),
 					sampler: Custom((
-						filter: linear,
+						filter: nearest,
 						wrap: clamp,
 						vflip: true,
 					)),
@@ -22,7 +22,7 @@
 				(
 					asset: Music(XTrackTure),
 					sampler: Custom((
-						filter: linear,
+						filter: nearest,
 						wrap: clamp,
 						vflip: true,
 					)),
@@ -34,7 +34,7 @@
 				(
 					asset: Misc(BufferA),
 					sampler: Custom((
-						filter: linear,
+						filter: nearest,
 						wrap: clamp,
 						vflip: true,
 					)),
@@ -50,7 +50,7 @@
 				(
 					asset: Texture(Font1),
 					sampler: Custom((
-						filter: nearest,
+						filter: linear,
 						wrap: repeat,
 						vflip: true,
 					)),
