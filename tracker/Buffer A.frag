@@ -4,59 +4,37 @@
 // pixel content: pitch of first note in the time frame.
 
 // Constants
-const float timeDelta = 1.1,
-    nEntries = 20.;
-const vec2 midiResolution = vec2(128.,80.);
-vec2 cellSize;
+const float timeDelta = .5;
 const vec3 c = vec3(1.,0.,-1.);
-const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0),
-    bitMask = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
-
-// Pack 32-bit float into pixel
-vec4 float32ToRGBA(float value) {
-    vec4 result = fract(value * bitShift);
-    return result - result.xxyz * bitMask;
-}
-
-// Unpack 32-bit float from pixel
-float RGBAToFloat32(vec4 value) {
-    return dot(value, c.xxxx/bitShift);
-}
 
 // Check if current time interval is already present in the texture.
 bool currentTimeIntervalIsPresent() {
-    return round(mod(iTime, timeDelta)/timeDelta) == RGBAToFloat32(texture(iChannel0, c.yy));
+    return int(round(mod(iTime, timeDelta)/timeDelta)) == int(texelFetch(iChannel0, ivec2(0), 0).x);
 }
 
 // Returns the pitch of the lowest note currently playing in channel, or zero if none is playing.
 float pitchOfHighestPlayingNoteOrZero(float channel) {
     float pitch = 0.;
-    for(float i = 0.; i<midiResolution.x; i += 1.)
-        if(RGBAToFloat32(texture(iChannel1, vec2(5*channel + 2., i)/midiResolution)) < timeDelta)
-            pitch = i;
+    for(int i = 128; i>=0; --i)
+        if(texelFetch(iChannel1, ivec2(5*channel + 2, i), 0).x < timeDelta)
+            pitch = float(i);
     return pitch;
 }
 
 // Add current time interval, moving everything else one line higher.
 vec4 addCurrentTimeInterval(vec2 uv) {
-    if(uv.y > 0.) return texture(iChannel0, (uv - c.yx)/cellSize);
-    if(uv.x == 0.) return c.xxxx;//float32ToRGBA(round(mod(iTime, timeDelta)/timeDelta));
-    else return float32ToRGBA(pitchOfHighestPlayingNoteOrZero(uv.x-1.));
+    if(uv.y > 0.) return texelFetch(iChannel0, ivec2(uv) - ivec2(0,1), 0);
+    if(uv.x == 0.) return round(mod(iTime, timeDelta)/timeDelta)*c.xyyy;
+    else if(uv.x <= 16.) return pitchOfHighestPlayingNoteOrZero(uv.x-1.)*c.xyyy;
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    cellSize = iResolution.xy/vec2(17., nEntries);
-    vec2 uv = round((fragCoord.xy - mod(fragCoord.xy, cellSize))/cellSize);
-    // if(uv.x == 1. && uv.y == 2.) {
-    //     fragColor = c.yyxy;
-    //     return;
-    // }
-    // fragColor = .2*c.yxyy;
+    vec2 uv = floor(fragCoord);
 
     if(iFrame == 0 || !currentTimeIntervalIsPresent()) {
         fragColor = addCurrentTimeInterval(uv);
     } else {
-        fragColor = texture(iChannel0, fragCoord.xy/iResolution.xy);
+        fragColor = texelFetch(iChannel0, ivec2(uv), 0);
     }
 }

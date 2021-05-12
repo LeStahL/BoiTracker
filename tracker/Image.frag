@@ -4,19 +4,6 @@
 const float timeDelta = 1.1;
 const vec2 midiResolution = vec2(128.,80.);
 const vec3 c = vec3(1.,0.,-1.);
-const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0),
-    bitMask = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
-
-// Pack 32-bit float into pixel
-vec4 float32ToRGBA(float value) {
-    vec4 result = fract(value * bitShift);
-    return result - result.xxyz * bitMask;
-}
-
-// Unpack 32-bit float from pixel
-float RGBAToFloat32(vec4 value) {
-    return dot(value, c.xxxx/bitShift);
-}
 
 struct UiInformation {
     float dist;
