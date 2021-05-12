@@ -1,7 +1,6 @@
 //! INPUT 2:0
 
 // Constants
-const float timeDelta = 1.1;
 const vec2 midiResolution = vec2(128.,80.);
 const vec3 c = vec3(1.,0.,-1.);
 
@@ -26,7 +25,7 @@ float dGlyph(vec2 uv, float ordinal, float height)
 {
     // Bounding box
     float d = dBox(uv, .5*height*c.xx);
-    if(d > 0.) return d+.1*height;
+    if(d > 0.) return d+.01*height;
 
     // Actual glyph distance
     const float nx = 16.;
@@ -49,7 +48,16 @@ vec3 materialColor(float material) {
         return vec3(0.71,0.79,0.62);
     } else if(material == 3.) {
         return vec3(1.00,0.39,0.31);
+    } else if(material == 4.) {
+        return vec3(0.25,0.25,0.31);
+    } else if(material == 5.) {
+        return vec3(0.32,0.93,1.00);
+    } else if(material == 6.) {
+        return vec3(0.00,0.00,0.00);
     }
+    // else if(material == 7.) {
+    //     return 
+    // }
 }
 
 vec3 renderOnto(vec3 col, UiInformation elements) {
@@ -89,15 +97,16 @@ vec4 pitchToNoteText(float pitch) {
     else if(note == 9.) return vec4(70., 35., octave+1., 45.); // F#1-
     else if(note == 10.) return vec4(71., octave+1., 45., 45.); // G1--
     else if(note == 1.) return vec4(71., 35., octave+1., 45.);// G#1-
+    return vec4(45.);
 }
 
 // Ui cell for one pitch block
 UiInformation cell(vec2 x, vec2 size, float pitch) {
     vec2 dx = mod(x, size)-.5*size,
-        xj = ceil((x-dx)/size);
+        xj = ceil((x-dx)/size)+3.*c.xy;
 
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.5*size.y))-.0005, 3.);
+        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, 3.);
     }
     return ui(1., 0.);
 }
@@ -106,9 +115,10 @@ UiInformation cell(vec2 x, vec2 size, float pitch) {
 UiInformation tracker(vec2 x, vec2 cellSize) {
     vec2 dx = mod(x, cellSize) - .5*cellSize,
         xj = ceil((x-dx)/cellSize);
-    if(xj.x > 0. && xj.y <= 16. && xj.y >= 0.) {
-        return cell(dx, .5*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
+    if(xj.x > 0. && xj.x <= 16. && xj.y >= 0.) {
+        return cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
     }
+    return ui(1.,0.);
 }
 
 // Retrieve text from dictionary. Will not check if the index is actually contained in the
@@ -118,26 +128,26 @@ UiInformation text(int index) {
 }
 
 UiInformation window(vec2 x, vec2 outerSize, float R) {
-    float d = dBox(x, outerSize-R)-R;
+    float d = dBox(x, outerSize-R)-R,
+        a = iResolution.x/iResolution.y;
 
-    return tracker(x+vec2(iResolution.x/iResolution.y,.25), .2*vec2(1., .2));
-
-    return add(
-        add(
-            // Window background
-            ui(d, 1.),
-            // Window title bar
-            ui(abs(dLine(x,(outerSize-R)*c.zx, (outerSize-R)))-R, 2.)
-        ),
-        add(
-            // Border
-            ui(abs(d)-.002, 2.),
-            // Title text
-            // ui(abs(dGlyph(x, 7., .2))-.01, 3.)
-            // cell(x, .2*vec2(.2, .15), texelFetch(iChannel0, ivec2(1.+0.), 0).x)
-            tracker(x, .2*vec2(.8, .15))
-        )
-    );
+    return tracker(x+vec2(.49*a,.45), vec2(.98*a/16., 1./32.));
+ 
+    //     add(
+    //         // Window background
+    //         ui(d, 1.),
+    //         // Window title bar
+    //         ui(abs(dLine(x,(outerSize-R)*c.zx, (outerSize-R)))-R, 2.)
+    //     ),
+    //     add(
+    //         // Border
+    //         ui(abs(d)-.002, 2.),
+    //         // Title text
+    //         // ui(abs(dGlyph(x, 7., .2))-.01, 3.)
+    //         // cell(x, .2*vec2(.2, .15), texelFetch(iChannel0, ivec2(1.+0.), 0).x)
+    //         tracker(x+vec2(.49*a,.25), vec2(.98*a/16., 1./32.))
+    //     )
+    // );
 }
 
 UiInformation background(vec2 x) {
