@@ -140,7 +140,7 @@ UiInformation cell(vec2 x, vec2 size, float pitch, bool current) {
             ui(dBox(x, size), current?4.:6.)
         );
     }
-    return ui(1., current?4.:6.);
+    return ui(dBox(x, size), current?4.:6.);
 }
 
 // Ui matrix for tracker information
@@ -151,12 +151,12 @@ UiInformation tracker(vec2 x, vec2 cellSize) {
         UiInformation cellUi = cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x, xj.y == 0.);
         if(xj.y != 0.) {
             cellUi.color = rgb2hsv(cellUi.color);
-            cellUi.color.r = .02*pi*(-1.+2.*hash12(
+            cellUi.color.r = .2*pi*(-1.+2.*hash12(
                 xj.x+.2*c.xx
             ));
 
             if(hasNote(xj.x-1., int(xj.y))) {
-                cellUi.color.b = 2.*cellUi.color.b;
+                cellUi.color.b = 3.*cellUi.color.b;
             }
 
             cellUi.color = hsv2rgb(cellUi.color);
