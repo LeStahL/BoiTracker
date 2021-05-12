@@ -95,12 +95,21 @@ vec4 pitchToNoteText(float pitch) {
 UiInformation cell(vec2 x, vec2 size, float pitch) {
     vec2 dx = mod(x, size)-.5*size,
         xj = ceil((x-dx)/size);
-    vec4 noteText = pitchToNoteText(pitch);
 
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return ui(abs(dGlyph(dx, noteText[int(xj.x)], 1.5*size.y))-.005, 3.);
+        return ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.5*size.y))-.003, 3.);
     }
     return ui(1., 0.);
+}
+
+// Ui matrix for tracker information
+UiInformation tracker(vec2 x, vec2 cellSize) {
+    vec2 dx = mod(x, cellSize) - .5*cellSize,
+        xj = ceil((x-dx)/cellSize);
+
+    if(xj.x > 0. && xj.y <= 16. && xj.y >= 0.) {
+        return cell(dx, cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x);
+    }
 }
 
 // Retrieve text from dictionary. Will not check if the index is actually contained in the
@@ -111,6 +120,9 @@ UiInformation text(int index) {
 
 UiInformation window(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R;
+
+    return tracker(x+vec2(iResolution.x/iResolution.y,.25), .2*vec2(.8, .2));
+
     return add(
         add(
             // Window background
@@ -123,7 +135,8 @@ UiInformation window(vec2 x, vec2 outerSize, float R) {
             ui(abs(d)-.002, 2.),
             // Title text
             // ui(abs(dGlyph(x, 7., .2))-.01, 3.)
-            cell(x, .5*vec2(.2, .15), 70.)
+            // cell(x, .2*vec2(.2, .15), texelFetch(iChannel0, ivec2(1.+0.), 0).x)
+            tracker(x, .2*vec2(.8, .15))
         )
     );
 }
