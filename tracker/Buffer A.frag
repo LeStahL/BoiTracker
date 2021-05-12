@@ -15,8 +15,8 @@ bool currentTimeIntervalIsPresent() {
 // Returns the pitch of the lowest note currently playing in channel, or zero if none is playing.
 float pitchOfHighestPlayingNoteOrZero(float channel) {
     float pitch = 0.;
-    for(int i = 128; i>=0; --i)
-        if(texelFetch(iChannel1, ivec2(5*channel + 2, i), 0).x < timeDelta)
+    for(int i = 127; i>=0; --i)
+        if(texelFetch(iChannel1, ivec2(i, 5*channel + 1), 0).x < timeDelta)
             pitch = float(i);
     return pitch;
 }
