@@ -65,20 +65,26 @@ float dMercury(vec2 x)
     );
 }
 
-float m(vec2 x)
-{
+float m(vec2 x) {
     return max(x.x,x.y);
 }
 
-float dTeam210(vec2 x)
-{
+float dTeam210(vec2 x) {
     return min(max(max(max(max(min(max(max(m(abs(vec2(abs(abs(x.x)-.25)-.25, x.y))-vec2(.2)), -m(abs(vec2(x.x+.5, abs(abs(x.y)-.05)-.05))-vec2(.12,.02))), -m(abs(vec2(abs(x.x+.5)-.1, x.y-.05*sign(x.x+.5)))-vec2(.02,.07))), m(abs(vec2(x.x+.5,x.y+.1))-vec2(.08,.04))), -m(abs(vec2(x.x, x.y-.04))-vec2(.02, .08))), -m(abs(vec2(x.x, x.y+.1))-vec2(.02))), -m(abs(vec2(x.x-.5, x.y))-vec2(.08,.12))), -m(abs(vec2(x.x-.5, x.y-.05))-vec2(.12, .07))), m(abs(vec2(x.x-.5, x.y))-vec2(.02, .08)));
 }
 
-float dAlcatraz(vec2 uv)
-{
+float dAlcatraz(vec2 uv) {
     vec2 a = abs(uv)-.25;
     return max(max(min(max(min(abs(mod(uv.x-1./12.,1./6.)-1./12.)-1./30., abs(a.x+a.y)-.015),a.x+a.y), max(a.x+.1,a.y+.1)), -length(uv-vec2(0.,.04))+.045), -max(a.x+.225,a.y+.175));
+}
+
+float dLogicoma(vec2 uv) {
+    float p = atan(uv.y,uv.x)+pi/3.,
+        dp = mod(p, 2.*pi/3.),
+        pj = p-dp+pi/6.;
+    vec2 x = .29*vec2(cos(pj), sin(pj));
+
+    return min(abs(length(uv)-.5)-.0066, abs(length(uv-x)-.025)-.0066);
 }
 
 float dGlyph(vec2 uv, float ordinal, float height)
@@ -242,6 +248,23 @@ UiInformation textTeam210(vec2 x) {
     return ui(1., 0.);
 }
 
+UiInformation textLogicoma(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[8] = float[8](
+        76, 111, 103, 105, 99, 111, 109, 97
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 8.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
 UiInformation desktop(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R,
         a = iResolution.x/iResolution.y,
@@ -310,10 +333,17 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
                     ui(dAlcatraz((x-.45*vec2(a,1.)*c.zx+.12*c.yx)/2.2/vec2(.035,.035))-.015, 0.)
                 ),
                 add(
-                    // Mercury logo background
-                    ui(mercuryBox, 7.),
-                    // Mercury logo outline
-                    ui(min(abs(mercuryBox)-.005, dMercury((x-.45*vec2(a,1.)*c.zx)/vec2(.035,.035))), 0.)
+                    add(
+                        // Mercury logo background
+                        ui(mercuryBox, 7.),
+                        // Mercury logo outline
+                        ui(min(abs(mercuryBox)-.005, dMercury((x-.45*vec2(a,1.)*c.zx)/vec2(.035,.035))), 0.)
+                    ),
+                    add(
+                        // Logicoma logo
+                        ui(dLogicoma((x-.45*vec2(a,1.)*c.zx+.33*c.yx)/vec2(.055,.055))-.02,0),
+                        textLogicoma(x-vec2(-.832, .105))
+                    )
                 )
             ),
             add(
