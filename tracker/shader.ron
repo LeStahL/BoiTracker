@@ -9,6 +9,7 @@
 		],
 	),
 	passes: {
+		// Handles tracker-like state information using the MIDI texture.
 		BufferA: (
 			inputs: [
 				(
@@ -19,6 +20,7 @@
 						vflip: true,
 					)),
 				),
+				// MIDI texture.
 				(
 					asset: Music(XTrackTure),
 					sampler: Custom((
@@ -29,7 +31,8 @@
 				),
 			],
 		),
-		Image: (
+		// Draws the tracker window.
+		BufferB: (
 			inputs: [
 				(
 					asset: Misc(BufferA),
@@ -47,10 +50,32 @@
 						vflip: true,
 					)),
 				),
+				// Placeholder texture - overridden by dictionary texture
 				(
 					asset: Texture(Font1),
 					sampler: Custom((
 						filter: linear,
+						wrap: repeat,
+						vflip: true,
+					)),
+				),
+			],
+		),
+		// Draws the fake operating system
+		Image: (
+			inputs: [
+				(
+					asset: Misc(BufferB),
+					sampler: Custom((
+						filter: linear,
+						wrap: clamp,
+						vflip: true,
+					)),
+				),
+				(
+					asset: Texture(Font1),
+					sampler: Custom((
+						filter: mipmap,
 						wrap: repeat,
 						vflip: true,
 					)),
