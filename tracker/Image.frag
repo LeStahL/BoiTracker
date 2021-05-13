@@ -253,7 +253,9 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
     float trackerBounds = dBox(x, trackerSize),
         trackerShadow = dBox(x+.0025*c.xz, trackerSize),
         windowTitleBar = dBox(x-.468*c.yx, vec2(.4*a, .014)),
-        mercuryBox = dBox(x-.45*vec2(a,1.)*c.zx, vec2(.035,.035));
+        mercuryBox = dBox(x-.45*vec2(a,1.)*c.zx, vec2(.032,.032)),
+        xBox = dBox(x-.468*c.xx-.23*c.xy, vec2(.013)),
+        xBoxShadow = dBox(x-.468*c.xx+.0023*c.xz, vec2(.013));
 
     return 
     add(
@@ -276,10 +278,26 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
                     ui(windowTitleBar, 6.)
                 ),
                 add(
-                    // Tracker window shadow
-                    ui(abs(trackerShadow)-.002, 3.),
-                    // Tracker window highlights
-                    ui(abs(trackerBounds)-.002, 4.)
+                    add(
+                        // Tracker window shadow
+                        ui(abs(trackerShadow)-.002, 3.),
+                        // Tracker window highlights
+                        ui(abs(trackerBounds)-.002, 4.)
+                    ),
+                    add(
+                        add(
+                            // X box shadows
+                            ui(abs(xBoxShadow)-.002,3.),
+                            // X box highlights
+                            ui(abs(xBox)-.002, 4.)
+                        ),
+                        add(
+                            // X box body
+                            ui(xBox, 2.),
+                            // X text
+                            ui(abs(dGlyph(x-.468*c.xx-.23*c.xy, 120, .5*1.5*.035))-.0003, 0.)
+                        )
+                    )
                 )
             )
         ),
