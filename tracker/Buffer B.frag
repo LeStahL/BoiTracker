@@ -130,38 +130,50 @@ bool hasNote(float channel, int index) {
 }
 
 // Ui cell for one pitch block
-UiInformation cell(vec2 x, vec2 size, float pitch, bool current) {
+UiInformation cell(vec2 x, vec2 size, float pitch, bool current, bool hasNote) {
     vec2 dx = mod(x, size)-.5*size,
         xj = ceil((x-dx)/size)+3.*c.xy;
 
+    UiInformation cellUi = ui(dBox(x, vec2(4.,1.)*size), 4.);
+
+    if(!hasNote) {
+        cellUi.color *= .5;
+    }
+
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return add(
-            ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, current?5.:3.),
-            ui(dBox(x, size), current?4.:6.)
+        return
+        add(
+            cellUi,
+            ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, current?5.:3.)
         );
     }
-    return ui(dBox(x, size), current?4.:6.);
+    return cellUi;
 }
 
 // Ui matrix for tracker information
 UiInformation tracker(vec2 x, vec2 cellSize) {
     vec2 dx = mod(x, cellSize) - .5*cellSize,
         xj = ceil((x-dx)/cellSize);
+
     if(xj.x > 0. && xj.x <= 16. && xj.y >= 0.) {
-        UiInformation cellUi = cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x, xj.y == 0.);
+        bool hasNote = hasNote(xj.x-1., int(xj.y));
+        UiInformation cellUi = cell(dx-.5*cellSize, vec2(.9,.8)*cellSize*vec2(.25,1.), texelFetch(iChannel0, ivec2(xj), 0).x, xj.y == 0., hasNote);
         if(xj.y != 0.) {
             cellUi.color = rgb2hsv(cellUi.color);
             cellUi.color.r = .2*pi*(-1.+2.*hash12(
                 xj.x+.2*c.xx
             ));
 
-            if(hasNote(xj.x-1., int(xj.y))) {
-                cellUi.color.b = 3.*cellUi.color.b;
+            if(hasNote) {
+                cellUi.color.g = .5-.25*cellUi.color.g;
+                cellUi.color.b *= 1.5;
             }
 
             cellUi.color = hsv2rgb(cellUi.color);
+
         } else {
             cellUi.color *= 2.;
+            cellUi.color = -cellUi.color+1.;
         }
 
         return cellUi;
