@@ -265,6 +265,25 @@ UiInformation textLogicoma(vec2 x) {
     return ui(1., 0.);
 }
 
+UiInformation scrollText(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const int N = 63,
+        NV = 20;
+    const float ordinals[N] = float[N](
+        73.0, 115.0, 115.0, 116.0, 32.0, 100.0, 117.0, 32.0, 98.0, 101.0, 105.0, 32.0, 89.0, 116.0, 122.0, 101.0, 108.0, 32.0, 100.0, 101.0, 110.0, 32.0, 68.0, 246.0, 110.0, 101.0, 114.0, 44.0, 32.0, 119.0, 105.0, 114.0, 100.0, 32.0, 100.0, 101.0, 105.0, 110.0, 32.0, 84.0, 97.0, 103.0, 32.0, 110.0, 117.0, 114.0, 32.0, 110.0, 111.0, 99.0, 104.0, 32.0, 115.0, 99.0, 104.0, 246.0, 110.0, 101.0, 114.0, 33.0, 46.0, 46.0, 46.0
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < NV) {
+            return ui(abs(dGlyph(dx, ordinals[int(mod(xj.x+floor(4.*iTime),float(N)))], .5*size.y))-.003, 5.);
+        }
+    }
+    return ui(1., 0.);
+}
+
 UiInformation desktop(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R,
         a = iResolution.x/iResolution.y,
@@ -374,8 +393,12 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
                         add(
                             // Start menu text
                             textStart(x-.45*vec2(a,1.)*c.zz+.06*c.xy),
-                            // BoiTracker Extreme v1.0
-                            textBoiTracker(x-vec2(-.69,.495))
+                            add(
+                                // BoiTracker Extreme v1.0
+                                textBoiTracker(x-vec2(-.69,.495)),
+                                // Scroller
+                                scrollText(x-vec2(-.39,.495))
+                            )
                         )
                     )
                 )
