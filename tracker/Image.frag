@@ -402,7 +402,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 trackerSize = vec2(.4*a, .45);
     float trackerBounds = dBox(uv, trackerSize);
     if(trackerBounds < 0.) {
-        col = texture(iChannel0, (fragCoord.xy/iResolution.xy-vec2(.05*a, .025))*vec2(1.225,1.05)).rgb;
+        col = texture(iChannel0, (fragCoord.xy/iResolution.xy-vec2(.05*a, .03))*vec2(1.225,1.05)).rgb;
     }
 
     fragColor = vec4(clamp(col,0.,1.),1.0);

@@ -141,12 +141,13 @@ UiInformation cell(vec2 x, vec2 size, float pitch, bool current, bool hasNote) {
     }
 
     if(xj.y == 0. && xj.x >= 0. && xj.x < 4.) {
-        return
+        cellUi =
         add(
             cellUi,
             ui(abs(dGlyph(dx, pitchToNoteText(pitch)[int(xj.x)], 1.*size.y))-.0001, current?5.:3.)
         );
     }
+
     return cellUi;
 }
 
