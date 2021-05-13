@@ -85,7 +85,7 @@ float dGlyph(vec2 uv, float ordinal, float height)
 {
     // Bounding box
     float d = dBox(uv, .5*height*c.xx);
-    if(d > 0.) return d+.01*height;
+    if(d > 0.) return d+.1*height;
 
     // Actual glyph distance
     const float nx = 16.;
@@ -116,6 +116,10 @@ vec3 materialColor(float material) {
         return vec3(0.16,0.00,0.65); // ugly title bar
     } else if(material == 7.) {
         return vec3(1.00,0.33,0.00); // mercury orange
+    } else if(material == 8.) {
+        return vec3(0.75,0.15,0.18); // team210 red
+    } else if(material == 9.) {
+        return vec3(1.,1.,1.); // white
     }
 }
 
@@ -135,12 +139,115 @@ UiInformation ui(float dist, float material) {
     return UiInformation(dist, material, materialColor(material));
 }
 
+UiInformation text1337(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[5] = float[5](
+        49., 51., 58., 51., 55.
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 5.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
+UiInformation textStart(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[5] = float[5](
+        83., 116., 97., 114., 116.
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 5.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
+UiInformation textBoiTracker(vec2 x) {
+    // BoiTracker Extreme v1.0
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[23] = float[23](
+        66., 111., 105., 84., 114., 97., 99., 107., 101., 114., 32., 69., 120., 116., 114., 101., 109., 101., 32., 118., 49., 46., 48.
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 23.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 9.);
+        }
+    }
+    return ui(1., 0.);
+}
+
+UiInformation textMercury(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[7] = float[7](
+        77, 101, 114, 99, 117, 114, 121
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 7.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
+UiInformation textAlcatraz(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[8] = float[8](
+        65, 108, 99, 97, 116, 114, 97, 122
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 8.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
+UiInformation textTeam210(vec2 x) {
+    const vec2 size = vec2(.035*.3,1.5*.035);
+    const float ordinals[7] = float[7](
+        84, 101, 97, 109, 50, 49, 48
+    );
+
+    vec2 dx = mod(x, size)-.5*size,
+        xj = ceil((x-dx)/size);
+
+    if(xj.y == 0.) {
+        if(xj.x >= 0. && xj.x < 7.) {
+            return ui(abs(dGlyph(dx, ordinals[int(xj.x)], .5*size.y))-.003, 0.);
+        }
+    }
+    return ui(1., 0.);
+}
+
 UiInformation desktop(vec2 x, vec2 outerSize, float R) {
     float d = dBox(x, outerSize-R)-R,
         a = iResolution.x/iResolution.y,
         taskBarBody = dBox(x+.4775*c.yx, vec2(.5*a, .02)), 
-        startBody = dBox(x+.4725*c.yx+.48*a*c.xy, vec2(.03,.014)),
-        startBodyShadow = dBox(x+.4725*c.yx+.48*a*c.xy-.0035*c.xz, vec2(.03,.012));
+        startBody = dBox(x+.4725*c.yx+.48*a*c.xy, vec2(.035,.014)),
+        startBodyShadow = dBox(x+.4725*c.yx+.48*a*c.xy-.0035*c.xz, vec2(.035,.012));
 
     vec2 trackerSize = vec2(.4*a, .48)+.008;
     float trackerBounds = dBox(x, trackerSize),
@@ -154,8 +261,12 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
             add(
                 // Task bar body
                 ui(taskBarBody, 2.),
-                // Task bar highlights
-                ui(abs(taskBarBody)-.002, 4.)
+                add(
+                    // Task bar highlights
+                    ui(abs(taskBarBody)-.002, 4.),
+                    // Team210 logo
+                    ui(dTeam210((x-.45*vec2(a,1.)*c.zx+.24*c.yx)/1.6/vec2(.035,.035)), 8.)
+                )
             ),
             add(
                 add(
@@ -174,8 +285,12 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
         ),
         add(
             add(
-                // Task bar shadow
-                ui(abs(dLine(x+.499*c.yx, -.5*a*c.xy, .5*a*c.xy))-.005, 3.),
+                add(
+                    // Task bar shadow
+                    ui(abs(dLine(x+.499*c.yx, -.5*a*c.xy, .5*a*c.xy))-.005, 3.),
+                    // ATZ logo
+                    ui(dAlcatraz((x-.45*vec2(a,1.)*c.zx+.12*c.yx)/2.2/vec2(.035,.035))-.015, 0.)
+                ),
                 add(
                     // Mercury logo background
                     ui(mercuryBox, 7.),
@@ -190,8 +305,32 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
                     // Start button body
                     ui(startBody, 2.)
                 ),
-                // Start button highlights
-                ui(abs(startBody)-.002, 4.)
+                add(
+                    add(
+                        // Start button highlights
+                        ui(abs(startBody)-.002, 4.),
+                        add(
+                            // Alcatraz text
+                            textAlcatraz(x-vec2(-.832, .305)),
+                            // Team210 text
+                            textTeam210(x-vec2(-.827, .21))
+                        )
+                    ),
+                    add(
+                        add(
+                            // 13:37 timer
+                            text1337(x - .45*vec2(a,1.)*c.xz-.03*c.xy),
+                            // Mercury text
+                            textMercury(x-vec2(-.825, .425))
+                        ),
+                        add(
+                            // Start menu text
+                            textStart(x-.45*vec2(a,1.)*c.zz+.06*c.xy),
+                            // BoiTracker Extreme v1.0
+                            textBoiTracker(x-vec2(-.69,.495))
+                        )
+                    )
+                )
             )
         )
     );
@@ -218,7 +357,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         col = texture(iChannel0, (fragCoord.xy/iResolution.xy-vec2(.05*a, .025))*vec2(1.225,1.05)).rgb;
     }
 
-    // col = mix(col, c.xyy, sm(dmercury(2.*uv)));
-    
     fragColor = vec4(clamp(col,0.,1.),1.0);
 }
