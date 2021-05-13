@@ -255,7 +255,7 @@ UiInformation desktop(vec2 x, vec2 outerSize, float R) {
         windowTitleBar = dBox(x-.468*c.yx, vec2(.4*a, .014)),
         mercuryBox = dBox(x-.45*vec2(a,1.)*c.zx, vec2(.032,.032)),
         xBox = dBox(x-.468*c.xx-.23*c.xy, vec2(.013)),
-        xBoxShadow = dBox(x-.468*c.xx+.0023*c.xz, vec2(.013));
+        xBoxShadow = dBox(x-.468*c.xx+.0023*c.xz-.23*c.xy, vec2(.013));
 
     return 
     add(
